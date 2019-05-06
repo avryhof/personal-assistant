@@ -1,0 +1,20 @@
+{
+	"body": {
+		"version": "1.0",
+		"response": {
+			"outputSpeech": {
+				"type": "SSML",
+				"ssml": "<speak>Happy Hippo, Angry Duck. Hello, little person! How ARE you today? Is your mood quite terrific or only okay?\r\nAre you HAPPY AS A HIPPO?\r\nor ANGRY AS A DUCK?\r\nMaybe sad as a chicken? (Can you say \"Cluck Cluck\"?)\r\nAre you...Grumpy as a moose? Or Excited as a dog?\r\nWorried as a rabbit? Contented as a frog?\r\nPerhaps like a pig, you are sweetly amused.\r\nOr perhaps, like a cow, you're completely confused.\r\nYou might feel that, somehow, you've lost all your fizz.\r\nOr you're frazzled like a... um... frazzled thing. (I'm not sure what it is.)\r\nwell, I hope you are happy. But if you are not, you have friends who will help you.\r\nWe like you a lot.\r\nAnd a difficult mood is not here to stay.\r\nEveryone's moods will change day to day.\r\nUnless you're that duck. He's always this way.</speak>"
+			},
+			"card": {
+				"type": "Simple",
+				"title": "Vryhof Family Planner",
+				"content": "Happy Hippo, Angry Duck. Hello, little person! How ARE you today? Is your mood quite terrific or only okay?\r\nAre you HAPPY AS A HIPPO?\r\nor ANGRY AS A DUCK?\r\nMaybe sad as a chicken? (Can you say \"Cluck Cluck\"?)\r\nAre you...Grumpy as a moose? Or Excited as a dog?\r\nWorried as a rabbit? Contented as a frog?\r\nPerhaps like a pig, you are sweetly amused.\r\nOr perhaps, like a cow, you're completely confused.\r\nYou might feel that, somehow, you've lost all your fizz.\r\nOr you're frazzled like a... um... frazzled thing. (I'm not sure what it is.)\r\nwell, I hope you are happy. But if you are not, you have friends who will help you.\r\nWe like you a lot.\r\nAnd a difficult mood is not here to stay.\r\nEveryone's moods will change day to day.\r\nUnless you're that duck. He's always this way."
+			},
+			"shouldEndSession": false,
+			"type": "_DEFAULT_RESPONSE"
+		},
+		"sessionAttributes": {},
+		"userAgent": "ask-python/1.9.0 Python/3.6.7 ask-webservice django-ask-sdk"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"body": {
+		"version": "1.0",
+		"response": {
+			"outputSpeech": {
+				"type": "SSML",
+				"ssml": "<speak>Welcome to the Vryhof family Planner</speak>"
+			},
+			"card": {
+				"type": "Simple",
+				"title": "Vryhof Family Planner",
+				"content": "Welcome to the Vryhof family Planner"
+			},
+			"shouldEndSession": false,
+			"type": "_DEFAULT_RESPONSE"
+		},
+		"sessionAttributes": {},
+		"userAgent": "ask-python/1.9.0 Python/3.6.7 ask-webservice django-ask-sdk ask-webservice django-ask-sdk ask-webservice django-ask-sdk"
+	}
+}
