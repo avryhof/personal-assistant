@@ -1,0 +1,3 @@
+RECOGNIZER_SNOWBOY = 'snowboy'
+RECOGNIZER_SPHINX = 'sphinx'
+RECOGNIZER_WIT = 'wit.ai'

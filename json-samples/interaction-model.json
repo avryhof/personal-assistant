@@ -4,22 +4,31 @@
             "invocationName": "vryhof family planner",
             "intents": [
                 {
-                    "name": "HelloWorldIntent",
-                    "samples": [
-                        "hello",
-                        "hi",
-                        "howdy",
-                        "hey"
-                    ]
-                },
-                {
                     "name": "GetWeatherIntent",
+                    "slots": [],
                     "samples": [
                         "weather",
                         "tell me the weather",
                         "what temperature is it",
                         "what is the weather",
                         "what's the weather"
+                    ]
+                },
+                {
+                    "name": "ReadBookIntent",
+                    "slots": [],
+                    "samples": [
+                        "read a bedtime story",
+                        "read a story",
+                        "bedtime story"
+                    ]
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": [
+                        "goodbye",
+                        "exit",
+                        "so long"
                     ]
                 },
                 {
@@ -39,19 +48,11 @@
                     "samples": []
                 },
                 {
-                    "name": "AMAZON.CancelIntent",
-                    "samples": [
-                        "goodbye",
-                        "ta ta",
-                        "ta ta for now",
-                        "exit",
-                        "adios",
-                        "ciao",
-                        "so long"
-                    ]
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
                 },
                 {
-                    "name": "AMAZON.FallbackIntent",
+                    "name": "AMAZON.NavigateHomeIntent",
                     "samples": []
                 }
             ],
