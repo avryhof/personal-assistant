@@ -1,0 +1,10 @@
+appdirs==1.4.3
+# gTTS==1.2.0
+# gTTS-token==1.1.1
+packaging==16.8
+pkg-resources==0.0.0
+PyAudio==0.2.11
+pyttsx==1.1
+requests==2.14.2
+six==1.10.0
+SpeechRecognition==3.6.5
