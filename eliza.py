@@ -1,87 +1,67 @@
-import random
 import re
 
-import pyttsx
+import pyttsx3 as pyttsx
 import speech_recognition as sr
 
-"""
-sphinx; CMU Sphinx(works offline)
-google; Google Speech Recognition
-google_cloud; Google Cloud Speech API
-wit; Wit.ai
-bing; Microsoft Bing Voice Recognition
-houndify; Houndify API
-ibm; IBM Speech to Text
-"""
-SPEECH_RECOGNITION = False
 
-RECOGNITION_ENGINE = 'sphinx'
-WIT_AI_KEY = "INSERT WIT.AI API KEY HERE"  # Wit.ai keys are 32-character uppercase alphanumeric strings
+class Bot:
+    heard = None
 
-r = sr.Recognizer()
-eliza = engine = pyttsx.init()
+    listener = None
+    speaker = None
 
+    deaf = False
+    dumb = False
 
-def eliza_speak(message):
-    print(message)
+    def __init__(self, **kwargs):
+        self.deaf = kwargs.get("deaf", False)
+        self.dumb = kwargs.get("dumb", False)
 
-    if SPEECH_RECOGNITION:
-        eliza.say(message)
-        eliza.runAndWait()
+        self.listener = sr.Recognizer()
+        engine = pyttsx.init()
+        self.speaker = engine
 
+    def speak(self, message):
+        if not self.dumb:
+            self.speaker.say(message)
+            self.speaker.runAndWait()
+        else:
+            print(message)
 
-def speech_recognize(audio_source):
-    if RECOGNITION_ENGINE == 'sphinx':
-        return r.recognize_sphinx(audio_source)
+    def recognize(self, audio_source):
 
-    if RECOGNITION_ENGINE == 'wit':
-        return r.recognize_wit(audio_source, key=WIT_AI_KEY)
+        return self.listener.recognize_sphinx(audio_source)
 
+    def listen(self, prompt_text):
+        if not self.deaf:
+            self.speak(prompt_text)
 
-def audio_input(prompt_text):
-    with sr.Microphone() as source:
-        eliza_speak(prompt_text)
-    audio = r.listen(source)
+            with sr.Microphone() as source:
 
-    try:
-        return speech_recognize(audio)
+                audio = self.listener.listen(source)
 
-    except sr.UnknownValueError:
-        return "I could not understand what you said."
+                try:
+                    self.heard = self.recognize(audio)
+                except sr.UnknownValueError:
+                    self.heard = "I could not understand what you said."
 
-    except sr.RequestError as e:
-        return "Error; {0}".format(e)
-
-
-def reflect(fragment):
-    tokens = fragment.lower().split()
-    for i, token in enumerate(tokens):
-        if token in reflections:
-            tokens[i] = reflections[token]
-    return ' '.join(tokens)
-
-
-def analyze(statement):
-    for pattern, responses in psychobabble:
-        match = re.match(pattern, statement.rstrip(".!"))
-        if match:
-            response = random.choice(responses)
-            return response.format(*[reflect(g) for g in match.groups()])
+                except sr.RequestError as e:
+                    self.heard = "Error; %s" % e
+        else:
+            self.heard = input(prompt_text)
 
 
 def main():
-    eliza_speak("Hello. How are you feeling today?")
+    eliza = Bot(deaf=True, dumb=True)
+
+    eliza.speak("Hello. How are you feeling today?")
 
     while True:
-        if SPEECH_RECOGNITION:
-            statement = audio_input("> ")
+        eliza.listen(">")
 
-        else:
-            statement = raw_input("> ")
+        eliza.speak("I heard: %s" % eliza.heard)
 
-        eliza_speak(analyze(statement))
-
-        if re.match(r'quit|bye|goodbye|good\sbye|so\slong|farewell', statement.rstrip(".!")):  # statement == "quit":
+        if re.match(r"quit|bye|goodbye|good\sbye|so\slong|farewell", eliza.heard.rstrip(".!")):  # statement == "quit":
             break
 
 
