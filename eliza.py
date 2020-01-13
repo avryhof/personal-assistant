@@ -52,16 +52,14 @@ class Bot:
 
 
 def main():
-    eliza = Bot(deaf=True, dumb=True)
-
-    eliza.speak("Hello. How are you feeling today?")
+    homebot = Bot(deaf=True, dumb=False)
 
     while True:
-        eliza.listen(">")
+        homebot.listen("> ")
 
-        eliza.speak("I heard: %s" % eliza.heard)
+        homebot.speak("I heard: %s" % homebot.heard)
 
-        if re.match(r"quit|bye|goodbye|good\sbye|so\slong|farewell", eliza.heard.rstrip(".!")):  # statement == "quit":
+        if re.match(r"quit|bye|goodbye|good\sbye|so\slong|farewell", homebot.heard.rstrip(".!")):  # statement == "quit":
             break
 
 
