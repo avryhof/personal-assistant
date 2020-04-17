@@ -1,7 +1,8 @@
 nltk
+# numpy
 peewee
-#pyalsaaudio
-PyAudio
+# pyalsaaudio
+# PyAudio
 prompt-toolkit
 pyparsing
 pyttsx3
