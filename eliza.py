@@ -52,7 +52,7 @@ class Bot:
 
 
 def main():
-    homebot = Bot(deaf=True, dumb=False)
+    homebot = Bot(deaf=True, dumb=True)
 
     while True:
         homebot.listen("> ")
