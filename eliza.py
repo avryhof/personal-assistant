@@ -1,5 +1,6 @@
 import logging
 import re
+import string
 
 import pyttsx3 as pyttsx
 import speech_recognition as sr
@@ -105,7 +106,7 @@ class Bot:
 
 
 def main():
-    homebot = Bot(deaf=False, dumb=False, log_level="console")
+    homebot = Bot(deaf=True, dumb=True, log_level="console")
 
     homebot.speak("Welcome to home bot. Your robotic voice companion.")
 

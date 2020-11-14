@@ -5,7 +5,6 @@ chardet==3.0.4
 idna==2.10
 ifaddr==0.1.7
 lxml==4.6.1
-nanodlna
 netdisco==2.8.2
 peewee==3.13.3
 pip==20.2.4
