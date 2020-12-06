@@ -1,7 +1,7 @@
 # Personal Assistant
 A simple and lightweight personal assistant.
 
-Built with [SpeechRecognition](https://pypi.org/project/SpeechRecognition/) and [ptyysx3](https://pypi.org/project/pyttsx3/)
+Built with [my fork](https://pypi.org/project/speech-recognition-fork/) of [SpeechRecognition](https://pypi.org/project/SpeechRecognition/) and [ptyysx3](https://pypi.org/project/pyttsx3/)
 
 So far it has:
 - Custom Wake word
