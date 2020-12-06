@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from constants import RECOGNIZER_WIT
+from personal_assistant.constants import RECOGNIZER_WIT
 
 BASE_DIR = Path(__file__).resolve().parent
 

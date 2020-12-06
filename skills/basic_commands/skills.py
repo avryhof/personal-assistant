@@ -1,10 +1,10 @@
 import random
 
-from bot_class import Bot
-from skill_class import AssistantSkill
+from personal_assistant.classes import AssistantSkill
 
 
 class SpeakSkill(AssistantSkill):
+    name = "Speak Skill"
     utterances = ["say <str:phrase>", "repeat <str:phrase>"]
     params = ["phrase"]
 
@@ -14,6 +14,7 @@ class SpeakSkill(AssistantSkill):
 
 
 class ExitSkill(AssistantSkill):
+    name = "Exit Skill"
     utterances = ["exit", "goodbye", "quit", "so long", "farewell"]
 
     def handle(self):
@@ -22,6 +23,7 @@ class ExitSkill(AssistantSkill):
 
 
 class HelloSkill(AssistantSkill):
+    name = "Hello Skill"
     utterances = ["hi", "hello", "howdy"]
 
     def handle(self):

@@ -1,11 +1,10 @@
 import glob
 import inspect
 import os
-import pprint
 from importlib import import_module
 
 import settings
-from skill_class import AssistantSkill
+from personal_assistant.classes import AssistantSkill
 
 skills_path = "../skills"
 skills_directory = os.path.join(settings.BASE_DIR, skills_path)

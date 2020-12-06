@@ -2,15 +2,107 @@ import glob
 import inspect
 import logging
 import os
+import re
 import time
 from importlib import import_module
 
 import pyttsx3 as pyttsx
 import speech_recognition as sr
+import vlc
 from rapidfuzz import fuzz, process
 
 import settings
-from skill_class import AssistantSkill
+
+
+# class AssistantMediaClass(object):
+#     player = None
+#
+#     def __init__(self, path=False):
+#         if path:
+#             self.load(path)
+#
+#     def load(self, path):
+#         # self.player = vlc.MediaPlayer(path)
+#         self.player = None
+#
+#     def pause(self):
+#         self.player.pause()
+#
+#     def play(self):
+#         self.player.play()
+#
+#     def stop(self):
+#         self.player.stop()
+
+
+class AssistantSkill(object):
+    name = None
+    utterances = []
+    params = []
+    param_values = dict()
+
+    utterance_expressions = []
+
+    def __init__(self, utterances=False):
+        if self.name is None:
+            self.name = re.sub("([A-Z])", " \\1", self.__class__.__name__).strip()
+
+        if isinstance(utterances, str):
+            self.utterances.append(utterances)
+
+        if isinstance(utterances, list):
+            for utterance in utterances:
+                self.utterances.append(utterance)
+
+        self.utterance_to_re()
+
+    def utterance_to_re(self):
+        re_parts = {"str": "[A-Za-z0-9 ]+?"}
+
+        expression = r"<(.*?):(.*?)>"
+
+        for utterance in self.utterances:
+            new_utterance = utterance
+            matches = re.findall(expression, utterance)
+            for match in matches:
+                replace_this = "<{}:{}>".format(match[0], match[1])
+                with_this = "(?P<{}>{})".format(match[1], re_parts.get(match[0]))
+                new_utterance = new_utterance.replace(replace_this, with_this)
+                if new_utterance[-1] == ")":
+                    new_utterance = "{}$".format(new_utterance)
+
+            self.utterance_expressions.append(new_utterance)
+
+    def get_param(self, param_name):
+        return self.param_values.get(param_name, False)
+
+    def parse(self, phrase):
+        responded = False
+        for utterance_expression in self.utterance_expressions:
+            m = re.search(utterance_expression, phrase)
+            if m is not None:
+                responded = True
+                for param in self.params:
+                    try:
+                        self.param_values.update({param: m.group(param)})
+                    except IndexError:
+                        pass
+                if not self.handle():
+                    responded = False
+
+        return responded
+
+    def handle(self):
+        raise NotImplementedError("subclasses of AssistantSkill must provide a handle() method")
+
+    def speak(self, phrase):
+        phrase = self.param_values.get("phrase")
+        bot = Bot(deaf=True, dumb=False, log_level=False)
+        bot.speak(phrase)
+
+    # @property
+    # def media(self):
+    #     return AssistantMediaClass()
 
 
 class Bot:
@@ -60,16 +152,20 @@ class Bot:
         self.log("Initialized Bot.")
 
     def _init_skills(self):
-        skills_path = "skills"
+        skills_path_name = "skills"
+        skills_module_name = "skills"
+        skills_path = os.path.join(settings.BASE_DIR, skills_path_name)
         skills_directory = os.path.join(settings.BASE_DIR, skills_path)
 
-        skills_directories = [dir for dir in glob.glob(os.path.join(skills_directory, "*")) if os.path.isdir(dir)]
+        skills_directories = [
+            directory for directory in glob.glob(os.path.join(skills_directory, "*")) if os.path.isdir(directory)
+        ]
 
         for skill_path in skills_directories:
-            skill_module_name = os.path.join(skill_path, "skills.py")
+            skill_module_name = os.path.join(skill_path, "{}.py".format(skills_module_name))
             if os.path.exists(skill_module_name):
-                skill_module_path = "{}.skills".format(
-                    skill_path.replace(str(settings.BASE_DIR), "").replace(os.path.sep, ".")
+                skill_module_path = "{}.{}".format(
+                    skill_path.replace(str(settings.BASE_DIR), "").replace(os.path.sep, "."), skills_module_name
                 )[1::]
                 skill_module = import_module(skill_module_path)
 
@@ -78,6 +174,7 @@ class Bot:
                         skill_class = getattr(skill_module, skill_class_name)
 
                         if inspect.isclass(skill_class) and issubclass(skill_class, AssistantSkill):
+                            print("Found Skill: {}".format(skill_class.name))
                             settings.SKILLS_REGISTRY.append(skill_class)
 
     def log(self, message):
