@@ -12,6 +12,7 @@ class SubsonicSkill(AssistantSkill):
         "play the album <str:album>",
     ]
     params = ["album", "artist", "genre", "song"]
+    disabled = False
 
     def handle(self):
         ss = Subsonic()
@@ -49,6 +50,7 @@ class SubsonicSkill(AssistantSkill):
 class PauseMediaSkill(AssistantSkill):
     name = "Pause Media Skill"
     utterances = ["pause", "pause song", "pause media", "pause music"]
+    disabled = False
 
     def handle(self):
         self.media.pause()
@@ -57,6 +59,7 @@ class PauseMediaSkill(AssistantSkill):
 class StopMediaSkill(AssistantSkill):
     name = "Pause Media Skill"
     utterances = ["stop", "stop song", "stop media", "stop music"]
+    disabled = False
 
     def handle(self):
         self.media.stop()

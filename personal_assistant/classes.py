@@ -14,25 +14,25 @@ from rapidfuzz import fuzz, process
 import settings
 
 
-# class AssistantMediaClass(object):
-#     player = None
-#
-#     def __init__(self, path=False):
-#         if path:
-#             self.load(path)
-#
-#     def load(self, path):
-#         # self.player = vlc.MediaPlayer(path)
-#         self.player = None
-#
-#     def pause(self):
-#         self.player.pause()
-#
-#     def play(self):
-#         self.player.play()
-#
-#     def stop(self):
-#         self.player.stop()
+class AssistantMediaClass(object):
+    player = None
+
+    def __init__(self, path=False):
+        if path:
+            self.load(path)
+
+    def load(self, path):
+        self.player = vlc.MediaPlayer(path)
+        # self.player = None
+
+    def pause(self):
+        self.player.pause()
+
+    def play(self):
+        self.player.play()
+
+    def stop(self):
+        self.player.stop()
 
 
 class AssistantSkill(object):
@@ -100,9 +100,9 @@ class AssistantSkill(object):
         bot = Bot(deaf=True, dumb=False, log_level=False)
         bot.speak(phrase)
 
-    # @property
-    # def media(self):
-    #     return AssistantMediaClass()
+    @property
+    def media(self):
+        return AssistantMediaClass()
 
 
 class Bot:
@@ -122,32 +122,31 @@ class Bot:
 
     deaf = False
     dumb = False
+    gender_string = "male"
 
     log_level = False
 
     def __init__(self, **kwargs):
         self.deaf = kwargs.get("deaf", False)
         self.dumb = kwargs.get("dumb", False)
+        load_skills = kwargs.get("load_skills", True)
         self.log_level = kwargs.get("log_level", False)
 
         self.wake_word = kwargs.get("wake_word", "Eliza")
-
-        gender_string = kwargs.get("gender", "male")
-        self.gender = self.gender_values.get(gender_string.lower())
+        self.voice_language = kwargs.get("language", "english-us")
 
         self.log("Initializing")
 
         self.listener = sr.Recognizer()
 
-        engine = pyttsx.init()
-        voices = engine.getProperty("voices")
-        engine.setProperty("voice", voices[self.gender].id)
-        self.speaker = engine
+        if not self.dumb:
+            self.configure_tts()
 
         if not self.deaf and not self.microphone:
             self.configure_microphone()
 
-        self._init_skills()
+        if load_skills:
+            self._init_skills()
 
         self.log("Initialized Bot.")
 
@@ -175,7 +174,10 @@ class Bot:
 
                         if inspect.isclass(skill_class) and issubclass(skill_class, AssistantSkill):
                             print("Found Skill: {}".format(skill_class.name))
-                            settings.SKILLS_REGISTRY.append(skill_class)
+                            if not hasattr(skill_class, "disabled") or not getattr(skill_class, "disabled"):
+                                settings.SKILLS_REGISTRY.append(skill_class)
+                            else:
+                                self.log("{} skill is disabled.".format(skill_class.name))
 
     def log(self, message):
         if self.log_level:
@@ -214,6 +216,17 @@ class Bot:
         self.detect_microphone()
         self.microphone = sr.Microphone(self.microphone_index)
         self.detect_threshold()
+
+    def configure_tts(self):
+        engine = pyttsx.init()
+        voices = engine.getProperty("voices")
+        for voice in voices:
+            if self.voice_language.lower() in voice.id:
+                engine.setProperty("voice", voice.id)
+
+        engine.setProperty('rate', 175)  # setting up new voice rate
+
+        self.speaker = engine
 
     def speak(self, message):
         if not self.dumb:

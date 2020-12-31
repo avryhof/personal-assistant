@@ -15,6 +15,7 @@ So far it has:
 - SpeechRecognition supports a few offline recognizers.
     - Sphinx: It sort of works, but the accuracy is pretty bad
     - Snowboy: Not open source
+- Don't upgrade pyttsx3.  It's tempting, but breaks the speaker.
 - Should add support for [Precise](https://github.com/MycroftAI/mycroft-precise)
 - Skill parser is RexEx based, but utterances can be defined similar to path() statements in Django.
 
