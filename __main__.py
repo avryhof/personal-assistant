@@ -5,7 +5,7 @@ from personal_assistant.classes import Bot
 def main():
     mute_alsa()
 
-    homebot = Bot(deaf=False, dumb=False, load_skills=True, log_level="console", wake_word="Speaker")
+    homebot = Bot(deaf=True, dumb=False, load_skills=True, log_level="console", wake_word="Speaker")
     # homebot = Bot(deaf=False, dumb=True, log_level="console")
 
     homebot.speak("Welcome to home bot. Your robotic voice companion.")

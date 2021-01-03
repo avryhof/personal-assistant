@@ -1,6 +1,6 @@
 import re
 
-from bot_class import Bot
+from settings import tts
 
 
 class AssistantSkill(object):
@@ -61,5 +61,4 @@ class AssistantSkill(object):
 
     def speak(self, phrase):
         phrase = self.param_values.get("phrase")
-        bot = Bot(deaf=True, dumb=False, log_level=False)
-        bot.speak(phrase)
+        tts.synth(phrase)

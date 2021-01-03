@@ -1,6 +1,6 @@
 import random
 
-from personal_assistant.classes import AssistantSkill
+from personal_assistant.assistant_skill_class import AssistantSkill
 
 
 class SpeakSkill(AssistantSkill):

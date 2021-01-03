@@ -1,115 +1,20 @@
+import datetime
 import glob
 import inspect
 import logging
 import os
-import re
 import time
 from importlib import import_module
 
-import pyttsx3 as pyttsx
 import speech_recognition as sr
-import vlc
 from rapidfuzz import fuzz, process
 
 import settings
-
-
-class AssistantMediaClass(object):
-    player = None
-
-    def __init__(self, path=False):
-        if path:
-            self.load(path)
-
-    def load(self, path):
-        self.player = vlc.MediaPlayer(path)
-        # self.player = None
-
-    def pause(self):
-        self.player.pause()
-
-    def play(self):
-        self.player.play()
-
-    def stop(self):
-        self.player.stop()
-
-
-class AssistantSkill(object):
-    name = None
-    utterances = []
-    params = []
-    param_values = dict()
-
-    utterance_expressions = []
-
-    def __init__(self, utterances=False):
-        if self.name is None:
-            self.name = re.sub("([A-Z])", " \\1", self.__class__.__name__).strip()
-
-        if isinstance(utterances, str):
-            self.utterances.append(utterances)
-
-        if isinstance(utterances, list):
-            for utterance in utterances:
-                self.utterances.append(utterance)
-
-        self.utterance_to_re()
-
-    def utterance_to_re(self):
-        re_parts = {"str": "[A-Za-z0-9 ]+?"}
-
-        expression = r"<(.*?):(.*?)>"
-
-        for utterance in self.utterances:
-            new_utterance = utterance
-            matches = re.findall(expression, utterance)
-            for match in matches:
-                replace_this = "<{}:{}>".format(match[0], match[1])
-                with_this = "(?P<{}>{})".format(match[1], re_parts.get(match[0]))
-                new_utterance = new_utterance.replace(replace_this, with_this)
-                if new_utterance[-1] == ")":
-                    new_utterance = "{}$".format(new_utterance)
-
-            self.utterance_expressions.append(new_utterance)
-
-    def get_param(self, param_name):
-        return self.param_values.get(param_name, False)
-
-    def parse(self, phrase):
-        responded = False
-        for utterance_expression in self.utterance_expressions:
-            m = re.search(utterance_expression, phrase)
-            if m is not None:
-                responded = True
-                for param in self.params:
-                    try:
-                        self.param_values.update({param: m.group(param)})
-                    except IndexError:
-                        pass
-                if not self.handle():
-                    responded = False
-
-        return responded
-
-    def handle(self):
-        raise NotImplementedError("subclasses of AssistantSkill must provide a handle() method")
-
-    def speak(self, phrase):
-        phrase = self.param_values.get("phrase")
-        bot = Bot(deaf=True, dumb=False, log_level=False)
-        bot.speak(phrase)
-
-    @property
-    def media(self):
-        return AssistantMediaClass()
+from skill_class import AssistantSkill
 
 
 class Bot:
     wake_word = "Speaker"
-
-    gender = 0
-    gender_values = dict(male=0, female=1)
 
     heard = None
     responded = None
@@ -181,7 +86,14 @@ class Bot:
 
     def log(self, message):
         if self.log_level:
-            log_level = self.log_level.lower()
+            log_level = str(self.log_level).lower()
+
+            debug_timestamp = datetime.datetime.now().isoformat()[0:19]
+            debug_filename = os.path.basename(inspect.stack()[1][1])
+            debug_function_name = inspect.stack()[1][3]
+            debug_line_number = inspect.stack()[1][2]
+
+            message = "%s - %s (%s):\n%s" % (debug_filename, debug_function_name, debug_line_number, message)
 
             if log_level == "debug":
                 logging.debug(message)
@@ -218,20 +130,11 @@ class Bot:
         self.detect_threshold()
 
     def configure_tts(self):
-        engine = pyttsx.init()
-        voices = engine.getProperty("voices")
-        for voice in voices:
-            if self.voice_language.lower() in voice.id:
-                engine.setProperty("voice", voice.id)
-
-        engine.setProperty('rate', 175)  # setting up new voice rate
-
-        self.speaker = engine
+        self.speaker = settings.tts
 
     def speak(self, message):
         if not self.dumb:
-            self.speaker.say(message)
-            self.speaker.runAndWait()
+            self.speaker.synth(message)
         else:
             print(message)
 
@@ -283,7 +186,6 @@ class Bot:
         responded = False
         for skill in settings.SKILLS_REGISTRY:
             sc = skill()
-            self.log("Trying {}".format(sc.name))
             try:
                 responded = sc.parse(chat_query)
             except Exception as e:

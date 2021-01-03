@@ -1,5 +1,6 @@
-from personal_assistant.classes import AssistantSkill
+from personal_assistant.assistant_skill_class import AssistantSkill
 from skills.subsonic.subsonic_class import Subsonic
+from utilities.debugging import log_message
 
 
 class SubsonicSkill(AssistantSkill):
@@ -15,6 +16,9 @@ class SubsonicSkill(AssistantSkill):
     disabled = False
 
     def handle(self):
+        log_message("{} skill trying to respond.".format(self.name))
+        retn = False
+
         ss = Subsonic()
 
         album = self.get_param("album")
@@ -38,28 +42,27 @@ class SubsonicSkill(AssistantSkill):
             stream_url = ss.stream_url(the_song.get("id"))
             try:
                 self.media.load(stream_url)
-                self.media.play()
             except Exception as e:
-                return False
+                log_message(e)
             else:
-                return True
-        else:
-            return False
+                retn = self.media.play()
+
+        return retn
 
 
 class PauseMediaSkill(AssistantSkill):
     name = "Pause Media Skill"
-    utterances = ["pause", "pause song", "pause media", "pause music"]
+    utterances = ["pause", "pause song", "pause media", "pause music", "resume"]
     disabled = False
 
     def handle(self):
-        self.media.pause()
+        return self.media.pause()
 
 
 class StopMediaSkill(AssistantSkill):
-    name = "Pause Media Skill"
+    name = "Stop Media Skill"
     utterances = ["stop", "stop song", "stop media", "stop music"]
     disabled = False
 
     def handle(self):
-        self.media.stop()
+        return self.media.stop()
