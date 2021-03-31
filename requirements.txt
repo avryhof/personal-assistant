@@ -4,7 +4,7 @@ certifi==2020.12.5
 chardet==3.0.4
 idna==2.10
 ifaddr==0.1.7
-lxml==4.6.2
+lxml==4.6.3
 nanodlna
 netdisco==2.8.2
 peewee==3.14.0
