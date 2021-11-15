@@ -8,7 +8,7 @@ lxml==4.6.2
 nanodlna
 netdisco==2.8.2
 peewee==3.14.0
-pip==20.3.1
+pip==21.1
 pocketsphinx==0.1.15
 prompt-toolkit==3.0.8
 pyalsaaudio==0.9.0
