@@ -1,6 +1,6 @@
 PyAudio==0.2.11
 speech-recognition-fork==3.8.1.2020.12.6
-certifi==2020.12.5
+certifi==2022.12.7
 chardet==3.0.4
 idna==2.10
 ifaddr==0.1.7
