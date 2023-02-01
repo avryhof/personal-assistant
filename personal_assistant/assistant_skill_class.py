@@ -2,14 +2,18 @@ import re
 
 import vlc
 
+import settings
+from personal_assistant.base_class import BaseClass
 from settings import tts
 from utilities.debugging import log_message
 
 
-class AssistantMediaClass(object):
+class AssistantMediaClass(BaseClass):
     player = None
 
-    def __init__(self, path=False):
+    def __init__(self, path=False, **kwargs):
+        super().__init__(**kwargs)
+
         if path:
             self.load(path)
 
@@ -34,7 +38,7 @@ class AssistantMediaClass(object):
         return self.retn_code(self.player.stop())
 
 
-class AssistantSkill(object):
+class AssistantSkill(BaseClass):
     name = None
     utterances = []
     params = []
@@ -42,7 +46,9 @@ class AssistantSkill(object):
 
     utterance_expressions = []
 
-    def __init__(self, utterances=False):
+    def __init__(self, utterances=False, **kwargs):
+        super().__init__(**kwargs)
+
         if self.name is None:
             self.name = re.sub("([A-Z])", " \\1", self.__class__.__name__).strip()
 
@@ -82,7 +88,7 @@ class AssistantSkill(object):
         responded = False
         match_phrase = phrase.strip().lower()
 
-        print(self.name, self.utterance_expressions)
+        self.log(self.name, self.utterance_expressions)
 
         for utterance_expression in self.utterance_expressions:
             if match_phrase == utterance_expression or re.search(utterance_expression, match_phrase):
@@ -108,4 +114,7 @@ class AssistantSkill(object):
         if phrase is None:
             phrase = self.param_values.get("phrase")
 
-        tts.synth(phrase)
+        if settings.DUMB:
+            print(phrase)
+        else:
+            tts.synth(phrase)

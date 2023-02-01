@@ -12,6 +12,8 @@ class SpeakSkill(AssistantSkill):
         phrase = self.param_values.get("phrase")
         self.speak(phrase)
 
+        return True
+
 
 class ExitSkill(AssistantSkill):
     name = "Exit Skill"
@@ -28,5 +30,7 @@ class HelloSkill(AssistantSkill):
 
     def handle(self):
         phrase = random.choice(self.utterances)
-        print("Saying: {}".format(phrase))
+        self.log("Saying: {}".format(phrase))
         self.speak(phrase)
+
+        return True

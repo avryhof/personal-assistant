@@ -1,19 +1,22 @@
-import datetime
 import glob
-import inspect
-import logging
 import os
 import time
 from importlib import import_module
 
+import openai
 import speech_recognition as sr
+from nltk.chat.util import Chat
 from rapidfuzz import fuzz, process
 
 import settings
-from skill_class import AssistantSkill
+from personal_assistant.base_class import BaseClass
+from chatbot.helpers import get_pairs, get_reflections
+from personal_assistant.utils import find_devices
+
+openai.api_key = getattr(settings, "OPENAI_API_KEY")
 
 
-class Bot:
+class Bot(BaseClass):
     wake_word = "Speaker"
 
     heard = None
@@ -29,18 +32,19 @@ class Bot:
     dumb = False
     gender_string = "male"
 
-    log_level = False
-
     def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
         self.deaf = kwargs.get("deaf", False)
         self.dumb = kwargs.get("dumb", False)
         load_skills = kwargs.get("load_skills", True)
-        self.log_level = kwargs.get("log_level", False)
 
         self.wake_word = kwargs.get("wake_word", "Eliza")
         self.voice_language = kwargs.get("language", "english-us")
 
         self.log("Initializing")
+
+        find_devices()
 
         self.listener = sr.Recognizer()
 
@@ -62,11 +66,13 @@ class Bot:
         skills_directory = os.path.join(settings.BASE_DIR, skills_path)
 
         skills_directories = [
-            directory for directory in glob.glob(os.path.join(skills_directory, "*")) if os.path.isdir(directory)
+            directory for directory in glob.glob(os.path.join(skills_directory, "*")) if
+            os.path.isdir(directory) and "__pycache__" not in directory
         ]
 
         for skill_path in skills_directories:
-            skill_module_name = os.path.join(skill_path, "{}.py".format(skills_module_name))
+            skill_module_name = os.path.join(skill_path, f"{skills_module_name}.py")
+
             if os.path.exists(skill_module_name):
                 skill_module_path = "{}.{}".format(
                     skill_path.replace(str(settings.BASE_DIR), "").replace(os.path.sep, "."), skills_module_name
@@ -77,36 +83,18 @@ class Bot:
                     if skill_class_name != "AssistantSkill":
                         skill_class = getattr(skill_module, skill_class_name)
 
-                        if inspect.isclass(skill_class) and issubclass(skill_class, AssistantSkill):
-                            print("Found Skill: {}".format(skill_class.name))
-                            if not hasattr(skill_class, "disabled") or not getattr(skill_class, "disabled"):
+                        if isinstance(skill_class, type):
+                            if hasattr(skill_class, "name"):
+                                skill_name = getattr(skill_class, "name")
+                            else:
+                                skill_name = f"{skill_class.__name__} Skill"
+
+                            self.log(f"Found Skill: {skill_name}")
+                            if not hasattr(skill_class, "disabled") or not getattr(skill_class, "disabled") and hasattr(
+                                    skill_class, "parse"):
                                 settings.SKILLS_REGISTRY.append(skill_class)
                             else:
-                                self.log("{} skill is disabled.".format(skill_class.name))
-
-    def log(self, message):
-        if self.log_level:
-            log_level = str(self.log_level).lower()
-
-            debug_timestamp = datetime.datetime.now().isoformat()[0:19]
-            debug_filename = os.path.basename(inspect.stack()[1][1])
-            debug_function_name = inspect.stack()[1][3]
-            debug_line_number = inspect.stack()[1][2]
-
-            message = "%s - %s (%s):\n%s" % (debug_filename, debug_function_name, debug_line_number, message)
-
-            if log_level == "debug":
-                logging.debug(message)
-            if log_level == "info":
-                logging.info(message)
-            if log_level == "warning":
-                logging.warning(message)
-            if log_level == "error":
-                logging.error(message)
-            if log_level == "critical":
-                logging.critical(message)
-            if log_level == "console":
-                print(message)
+                                self.log(f"{skill_name} skill is disabled.")
 
     def detect_threshold(self):
         # self.speak("Determining ambient noise level. A moment of silence, please...")
@@ -184,6 +172,7 @@ class Bot:
 
     def respond(self, chat_query):
         responded = False
+
         for skill in settings.SKILLS_REGISTRY:
             sc = skill()
             try:
@@ -191,11 +180,34 @@ class Bot:
             except Exception as e:
                 self.log(e)
             else:
+                self.log(responded)
                 if responded:
-                    break
+                    return responded
 
         if not responded:
-            self.log("I heard {} but could not respond.".format(chat_query))
+            # self.log("I heard {} but could not respond.".format(chat_query))
+            message = f"I heard {chat_query}"
+
+            if getattr(settings, "BASE_RESPONDER") == "chatgpt":
+                completions = openai.Completion.create(
+                    engine="text-davinci-002",
+                    prompt=chat_query,
+                    max_tokens=1024,
+                    n=1,
+                    stop=None,
+                    temperature=0.5,
+                )
+
+                message = completions.choices[0].text
+
+            elif getattr(settings, "BASE_RESPONDER") == "nltk":
+                pairs = get_pairs()
+                reflections = get_reflections()
+
+                chat = Chat(pairs, reflections)
+                message = chat.respond(chat_query)
+
+            self.speak(message)
 
         return responded
 
@@ -226,5 +238,6 @@ class Bot:
 
         if self.has_wake_word(self.heard):
             self.responded = self.respond(self.heard)
+
         else:
             self.responded = False

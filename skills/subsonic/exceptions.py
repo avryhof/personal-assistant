@@ -1,2 +1,0 @@
-class InvalidCriteria(Exception):
-    pass

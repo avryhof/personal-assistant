@@ -1,10 +1,9 @@
-import pprint
 import re
 
 import requests
 import upnpclient
 
-from philips_hue.models import Bridge
+from devices.philips_hue.models import Bridge
 
 
 def discover_hue(**kwargs):
