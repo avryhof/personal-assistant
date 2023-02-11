@@ -6,6 +6,7 @@ import settings
 from personal_assistant.base_class import BaseClass
 from settings import tts
 from utilities.debugging import log_message
+from utilities.utility_functions import is_empty
 
 
 class AssistantMediaClass(BaseClass):
@@ -63,6 +64,12 @@ class AssistantSkill(BaseClass):
         self.utterance_to_re()
         self.media = AssistantMediaClass()
 
+    def __str__(self):
+        if not is_empty(self.name):
+            return self.name
+        else:
+            return self.__class__.name
+
     def utterance_to_re(self):
         re_parts = {"str": "[A-Za-z0-9 ]+?"}
 
@@ -91,7 +98,9 @@ class AssistantSkill(BaseClass):
         self.log(self.name, self.utterance_expressions)
 
         for utterance_expression in self.utterance_expressions:
-            if match_phrase == utterance_expression or re.search(utterance_expression, match_phrase):
+            if match_phrase == utterance_expression or re.search(
+                utterance_expression, match_phrase
+            ):
 
                 m = re.search(utterance_expression, match_phrase)
                 if m is not None:
@@ -108,7 +117,9 @@ class AssistantSkill(BaseClass):
         return responded
 
     def handle(self):
-        raise NotImplementedError("subclasses of AssistantSkill must provide a handle() method")
+        raise NotImplementedError(
+            "subclasses of AssistantSkill must provide a handle() method"
+        )
 
     def speak(self, phrase=None):
         if phrase is None:

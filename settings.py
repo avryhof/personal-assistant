@@ -1,20 +1,17 @@
 import os
 from pathlib import Path
 
-from tts_wrapper import PicoClient, SAPIClient, SAPITTS
-
 from personal_assistant.constants import RECOGNIZER_WIT
+from personal_assistant.tts import PyTTSX3
 
 BASE_DIR = Path(__file__).resolve().parent
 
-# client = PicoClient()
-client = SAPIClient()
-tts = SAPITTS(client)
+tts = PyTTSX3(voice_name="zira")
 
-DEBUG = False
+DEBUG = True
 
-DEAF = True
-DUMB = True
+DEAF = False
+DUMB = False
 
 # RECOGNITION_ENGINE = RECOGNIZER_SNOWBOY
 # RECOGNITION_ENGINE = RECOGNIZER_SPHINX
@@ -22,8 +19,8 @@ RECOGNITION_ENGINE = RECOGNIZER_WIT
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
-# BASE_RESPONDER = "chatgpt"
-BASE_RESPONDER = "nltk"
+BASE_RESPONDER = "chatgpt"
+# BASE_RESPONDER = "nltk"
 
 WIT_AI_KEY = os.environ.get("WIT_ACCESS_TOKEN")
 

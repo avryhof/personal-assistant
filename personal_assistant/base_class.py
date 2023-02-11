@@ -3,6 +3,7 @@ import logging
 import os
 
 import settings
+from utilities.utility_functions import make_list
 
 
 class BaseClass(object):
@@ -11,7 +12,7 @@ class BaseClass(object):
     def __init__(self, **kwargs):
         self.log_level = kwargs.get("log_level", False)
 
-    def log(self, message):
+    def log(self, message, *args):
         if getattr(settings, "DEBUG") and self.log_level:
             log_level = str(self.log_level).lower()
 
@@ -19,7 +20,15 @@ class BaseClass(object):
             debug_function_name = inspect.stack()[1][3]
             debug_line_number = inspect.stack()[1][2]
 
-            message = f"{debug_filename} - {debug_function_name} ({debug_line_number}):\n{message}"
+            if len(args) > 0:
+                message = "\t".join([message] + [str(x) for x in make_list(args)])
+
+            if "quiet" in log_level:
+                message = f"{message}"
+                log_level = log_level.replace("quiet", "").strip()
+
+            else:
+                message = f"{debug_filename} - {debug_function_name} ({debug_line_number}):\n{message}"
 
             if log_level == "debug":
                 logging.debug(message)

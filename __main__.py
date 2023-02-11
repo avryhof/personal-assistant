@@ -6,13 +6,13 @@ from personal_assistant.classes import Bot
 def main():
     mute_alsa()
 
-    homebot = Bot(deaf=settings.DEAF, dumb=settings.DUMB, load_skills=True, log_level="console", wake_word="Speaker")
+    homebot = Bot(deaf=settings.DEAF, dumb=settings.DUMB, load_skills=True, log_level="quiet console", wake_word="Computer")
     # homebot = Bot(deaf=False, dumb=True, log_level="console")
 
     homebot.speak("Welcome to home bot. Your robotic voice companion.")
 
     while True:
-        homebot.listen("Please command me ")
+        homebot.listen()
 
         if homebot.responded:
             homebot.speak("I heard: {}".format(homebot.heard))

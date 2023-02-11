@@ -11,7 +11,9 @@ from rapidfuzz import fuzz, process
 import settings
 from personal_assistant.base_class import BaseClass
 from chatbot.helpers import get_pairs, get_reflections
-from personal_assistant.utils import find_devices
+from utilities.utility_functions import is_empty
+
+# from personal_assistant.utils import find_devices
 
 openai.api_key = getattr(settings, "OPENAI_API_KEY")
 
@@ -44,7 +46,7 @@ class Bot(BaseClass):
 
         self.log("Initializing")
 
-        find_devices()
+        # find_devices()
 
         self.listener = sr.Recognizer()
 
@@ -92,7 +94,7 @@ class Bot(BaseClass):
                             self.log(f"Found Skill: {skill_name}")
                             if not hasattr(skill_class, "disabled") or not getattr(skill_class, "disabled") and hasattr(
                                     skill_class, "parse"):
-                                settings.SKILLS_REGISTRY.append(skill_class)
+                                settings.SKILLS_REGISTRY.append(skill_class())
                             else:
                                 self.log(f"{skill_name} skill is disabled.")
 
@@ -174,13 +176,13 @@ class Bot(BaseClass):
         responded = False
 
         for skill in settings.SKILLS_REGISTRY:
-            sc = skill()
+            sc = skill
             try:
                 responded = sc.parse(chat_query)
             except Exception as e:
-                self.log(e)
+                self.log(str(e))
             else:
-                self.log(responded)
+                self.log(f"{skill}: {responded}")
                 if responded:
                     return responded
 
@@ -211,9 +213,10 @@ class Bot(BaseClass):
 
         return responded
 
-    def listen(self, prompt_text):
+    def listen(self, prompt_text=None):
         if not self.deaf:
-            self.speak(prompt_text)
+            if not is_empty(prompt_text):
+                self.speak(prompt_text)
 
             with self.microphone as source:
                 self.log("Listening.")

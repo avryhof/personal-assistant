@@ -20,13 +20,13 @@ class ExitSkill(AssistantSkill):
     utterances = ["exit", "goodbye", "quit", "so long", "farewell"]
 
     def handle(self):
-        self.speak(random.choice(["goodbye", "have a nice day"]))
+        self.speak(random.choice(["goodbye", "have a nice day", "so long", "sionara", "have a good one"]))
         exit()
 
 
 class HelloSkill(AssistantSkill):
     name = "Hello Skill"
-    utterances = ["hi", "hello", "howdy"]
+    utterances = ["hi", "hello", "howdy", "hola", "hidey-ho"]
 
     def handle(self):
         phrase = random.choice(self.utterances)

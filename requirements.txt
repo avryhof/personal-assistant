@@ -20,13 +20,12 @@ PyChromecast
 pyparsing==2.4.7
 python-dateutil==2.8.1
 python-vlc
-pyttsx3==2.71
+pyttsx3==2.90
 pytz
 rapidfuzz
 requests==2.25.0
 setuptools==50.3.2
 six==1.15.0
-TTS-Wrapper
 uPnPClient==0.0.8
 urllib3==1.26.2
 wcwidth==0.2.5
