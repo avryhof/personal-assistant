@@ -3,17 +3,25 @@ import logging
 import os
 
 import settings
-from utilities.utility_functions import make_list
+from utilities.utility_functions import make_list, is_empty
 
 
 class BaseClass(object):
+    debug = False
     log_level = False
 
+    deaf = False
+    dumb = False
+
     def __init__(self, **kwargs):
-        self.log_level = kwargs.get("log_level", False)
+        self.debug = getattr(settings, "DEBUG")
+        self.log_level = kwargs.get("log_level", getattr(settings, "LOG_LEVEL", False))
+
+        self.deaf = getattr(settings, "DEAF")
+        self.dumb = getattr(settings, "DUMB")
 
     def log(self, message, *args):
-        if getattr(settings, "DEBUG") and self.log_level:
+        if self.debug and not is_empty(self.log_level):
             log_level = str(self.log_level).lower()
 
             debug_filename = os.path.basename(inspect.stack()[1][1])

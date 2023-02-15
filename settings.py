@@ -8,9 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent
 
 tts = PyTTSX3(voice_name="zira")
 
-DEBUG = True
+DEBUG = False
+LOG_LEVEL = "quiet console"
 
-DEAF = False
+DEAF = True
 DUMB = False
 
 # RECOGNITION_ENGINE = RECOGNIZER_SNOWBOY
@@ -18,6 +19,8 @@ DUMB = False
 RECOGNITION_ENGINE = RECOGNIZER_WIT
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+GEOIP_KEY = os.environ.get("GEOIP_KEY")
+NWS_EMAIL = "amos@vryhof.net"
 
 BASE_RESPONDER = "chatgpt"
 # BASE_RESPONDER = "nltk"
@@ -25,3 +28,6 @@ BASE_RESPONDER = "chatgpt"
 WIT_AI_KEY = os.environ.get("WIT_ACCESS_TOKEN")
 
 SKILLS_REGISTRY = []
+
+LOCATION = None
+

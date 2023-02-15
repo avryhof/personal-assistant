@@ -9,6 +9,7 @@ from nltk.chat.util import Chat
 from rapidfuzz import fuzz, process
 
 import settings
+from devices.location.device import GeoIP
 from personal_assistant.base_class import BaseClass
 from chatbot.helpers import get_pairs, get_reflections
 from utilities.utility_functions import is_empty
@@ -45,6 +46,12 @@ class Bot(BaseClass):
         self.voice_language = kwargs.get("language", "english-us")
 
         self.log("Initializing")
+
+        if is_empty(getattr(settings, "LOCATION")):
+            self.log("Updating Location")
+            g = GeoIP()
+            g.get_location()
+            setattr(settings, "LOCATION", g)
 
         # find_devices()
 
@@ -85,7 +92,7 @@ class Bot(BaseClass):
                     if skill_class_name != "AssistantSkill":
                         skill_class = getattr(skill_module, skill_class_name)
 
-                        if isinstance(skill_class, type):
+                        if hasattr(skill_class, "assistant_skill"):
                             if hasattr(skill_class, "name"):
                                 skill_name = getattr(skill_class, "name")
                             else:
@@ -202,12 +209,16 @@ class Bot(BaseClass):
 
                 message = completions.choices[0].text
 
+                responded = True
+
             elif getattr(settings, "BASE_RESPONDER") == "nltk":
                 pairs = get_pairs()
                 reflections = get_reflections()
 
                 chat = Chat(pairs, reflections)
                 message = chat.respond(chat_query)
+
+                responded = True
 
             self.speak(message)
 
@@ -232,7 +243,7 @@ class Bot(BaseClass):
                     self.heard = "Error; {}}".format(e)
         else:
             try:
-                self.heard = input(prompt_text)
+                self.heard = input(prompt_text if not is_empty(prompt_text) else "> ")
             except sr.UnknownValueError:
                 self.heard = "I could not understand what you said."
 

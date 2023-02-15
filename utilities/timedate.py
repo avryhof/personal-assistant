@@ -1,6 +1,7 @@
 import calendar
 import datetime
 
+import dateutil
 import holidays
 import pytz
 from dateutil.parser import parse
@@ -162,7 +163,7 @@ class AwareDateTime(object):
             self.value = parse(value)
 
         if isinstance(tzinfo, str):
-            self.tzinfo = pytz.timezone(tzinfo)
+            self.tzinfo = dateutil.tz.gettz(tzinfo)
         elif isinstance(tzinfo, datetime.tzinfo):
             self.tzinfo = tzinfo
 
@@ -175,8 +176,8 @@ class AwareDateTime(object):
         return self.__getattr__(item)
 
     def make_aware(self):
-        if self.value.utcoffset() is None:
-            self.value = self.value.replace(tzinfo=self.tzinfo)
+        if self.value.utcoffset() is None or self.timezone != self.tzinfo:
+            self.value = self.value.astimezone(self.tzinfo)
 
     def day_of_week(self) -> str:
         return self.value.strftime("%A")

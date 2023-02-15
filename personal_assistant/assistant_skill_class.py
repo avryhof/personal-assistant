@@ -1,8 +1,8 @@
 import re
 
+import contractions
 import vlc
 
-import settings
 from personal_assistant.base_class import BaseClass
 from settings import tts
 from utilities.debugging import log_message
@@ -47,6 +47,8 @@ class AssistantSkill(BaseClass):
 
     utterance_expressions = []
 
+    assistant_skill = True
+
     def __init__(self, utterances=False, **kwargs):
         super().__init__(**kwargs)
 
@@ -59,7 +61,7 @@ class AssistantSkill(BaseClass):
         self.utterance_expressions = []
         if isinstance(utterances, list):
             for utterance in utterances:
-                self.utterances.append(utterance)
+                self.utterances.append(utterance.lower())
 
         self.utterance_to_re()
         self.media = AssistantMediaClass()
@@ -76,7 +78,7 @@ class AssistantSkill(BaseClass):
         expression = r"<(.*?):(.*?)>"
 
         for utterance in self.utterances:
-            new_utterance = utterance
+            new_utterance = utterance.lower()
             matches = re.findall(expression, utterance)
             for match in matches:
                 replace_this = "<{}:{}>".format(match[0], match[1])
@@ -93,15 +95,14 @@ class AssistantSkill(BaseClass):
     def parse(self, phrase):
         should_respond = False
         responded = False
-        match_phrase = phrase.strip().lower()
+        match_phrase = contractions.fix(phrase).strip().lower()
 
-        self.log(self.name, self.utterance_expressions)
+        self.log(f"{self.name}, {match_phrase}, {self.utterance_expressions}")
 
         for utterance_expression in self.utterance_expressions:
             if match_phrase == utterance_expression or re.search(
-                utterance_expression, match_phrase
+                    utterance_expression, match_phrase
             ):
-
                 m = re.search(utterance_expression, match_phrase)
                 if m is not None:
                     for param in self.params:
@@ -125,7 +126,7 @@ class AssistantSkill(BaseClass):
         if phrase is None:
             phrase = self.param_values.get("phrase")
 
-        if settings.DUMB:
+        if self.dumb:
             print(phrase)
         else:
             tts.synth(phrase)
